@@ -3,6 +3,7 @@ var SafeMath = artifacts.require("SafeMath");
 var AddressUtils = artifacts.require("AddressUtils");
 var SupportsInterfaceWithLookup = artifacts.require("SupportsInterfaceWithLookup");
 var ERC721Token = artifacts.require("ERC721Token");
+var SimpleStorage = artifacts.require("SimpleStorage");
 
 module.exports = function(deployer) {
     deployer.deploy(Math);
@@ -10,4 +11,5 @@ module.exports = function(deployer) {
     deployer.deploy(AddressUtils);
     deployer.deploy(SupportsInterfaceWithLookup);
     deployer.deploy(ERC721Token, "HnH000001", "eGBS");
+    deployer.deploy(SimpleStorage, 100);
 };
