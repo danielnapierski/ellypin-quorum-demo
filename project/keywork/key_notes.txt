@@ -1,0 +1,12 @@
+Node 1 private key: e6181caaffff94a09d7e332fc8da9884d99902c7874eb74354bdcadf411929f1
+Node 1 public key: 0xed9d02e382b34818e88B88a309c7fe71E65f419d
+Node 7 private key: 4087a65ecc0ccde73e750763388a0f0f2d4d425b4010469b95d18d3b17fcb120'
+Node 7 public key: 0xa9e871F88CBeb870d32D88E4221dcfBD36Dd635a
+
+var keythereum = require("keythereum");
+var datadir = "./";
+var address= "0xPUBLIC_ADDRESS_HERE";
+const password = "";
+var keyObject = PASTE_JSON_KEY_FILE_CONTENTS_HERE
+var privateKey = keythereum.recover(password, keyObject);
+console.log('PRIVATE KEY:', privateKey.toString('hex'));
