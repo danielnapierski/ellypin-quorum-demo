@@ -1,20 +1,20 @@
 pragma solidity ^0.4.24;
 
 contract SimpleStorage {
-  uint public storedData;
+  string public storedData;
   address public sender;
 
-  constructor(uint initVal) public {
+  constructor() public {
     sender = msg.sender;
-    storedData = initVal;
+    storedData = "";
   }
 
-  function set(uint x) public {
+  function set(string x) public {
     sender = msg.sender;
     storedData = x;
   }
 
-  function get() public constant returns (uint retVal) {
+  function get() public constant returns (string retVal) {
     return storedData;
   }
 
