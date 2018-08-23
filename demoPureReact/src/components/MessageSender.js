@@ -4,6 +4,7 @@ import { Row, Col,  Card, Button, Input, Form } from 'antd';
 import { storageABI, storageAddress } from '../contract/contractInfo'
 
 const FormItem = Form.Item;
+const Web3 = require('web3');
 
 class MessageSender extends React.Component {
 
@@ -24,16 +25,25 @@ class MessageSender extends React.Component {
     // Get network provider and web3 instance.
     // See utils/getWeb3 for more info.
     getWeb3
-      .then(results => {
-        this.setState({
-          web3: results.web3
-        })
+	  .then(results => {
+	      if (typeof results.web3 === 'undefined') {
+		  const web3 = new Web3('http://localhost:22000');
+		  this.setState(web3: web3);
+	      } else {
+		  this.setState(web3: results.web3);
+	      }
 
         // Instantiate storage once web3 provided.
         this.instantiateStorage()
       })
       .catch(() => {
-        console.log('Error finding web3.')
+          console.log('Error finding web3.')
+
+	  const web3 = new Web3('http://40.117.116.172:22000');
+	  console.log('web3 version: ' + web3.version);
+	  this.setState({web3: web3}, () => { this.instantiateStorage()}); 
+
+	  
       })
   }
 
@@ -44,7 +54,14 @@ class MessageSender extends React.Component {
       this.state.web3.eth.getAccounts()
         .then((res, err) => {
           this.setState({ accounts: res });
-          console.log('accounts result: ' + res);
+            console.log('accounts result: ' + res);
+
+//	    console.log('personal: ' + this.state.web3.eth.personal);
+	    this.state.web3.eth.personal.unlockAccount(this.state.accounts[0], '').then(console.log);    
+//	    const personal = this.state.web3.personal;
+	    // THIS IS A SYNC CALL (WTF?)
+//	    const r = personal.unlockAccount(this.state.accounts[0], '');
+//	    console.log('r: ' + r);
 
           const storageTmpABI = storageABI
           let _storage = new this.state.web3.eth.Contract(storageTmpABI, storageAddress);
@@ -131,17 +148,29 @@ class MessageSender extends React.Component {
 //The following worked on sudo node web3 with ipc:
 //c.methods.set("HI").send({ from: "0xed9d02e382b34818e88B88a309c7fe71E65f419d", to: addr, gas: 30000000, privateFor: ["ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc="]}, function (error, transactionHash) {  if (error) {  console.log(error);  } else {   console.log(transactionHash);  }});
 
+
+	  
         const _text = this.state.text;
         console.log('TODO: send text: ' + _text + ' from: ' + this.state.accounts[0] + ' to: ' + this.state.storage.options.address);
 
-        this.state.storage.methods.set(_text)
-          .send({ from: this.state.accounts[0], to: this.state.storage.options.address, gas: 30000000, privateFor: ["ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc="]}, function (error, transactionHash) {
-            if (error) {
+	  const _this = this;
+// set nonce? gas?  gasPrice?  chainId?
+          this.state.web3.eth.personal.unlockAccount(this.state.accounts[0], '').then(console.log).then(	  function(){
+
+	      console.log(_this.state.accounts[0]);
+	      console.log(_this.state.storage.options.address);
+	      
+	      
+        _this.state.storage.methods.set(_text)
+		  .send({ from: _this.state.accounts[0], to: _this.state.storage.options.address, gas: 30000000, privateFor: ["ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc="]}, function (error, transactionHash) {
+		      if (error) {
+			  console.log('from: ' + _this.state.accounts[0]);
               console.log('ERROR: ' + error);
             } else {
               console.log('tx hash: ' + transactionHash);
             }
-          });
+              })
+	  });
       }
 //chainId: 10,
 
