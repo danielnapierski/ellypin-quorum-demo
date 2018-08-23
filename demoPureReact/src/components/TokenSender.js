@@ -1,11 +1,13 @@
 import React from 'react'
-import getWeb3 from '../utils/getWeb3'
+//import getWeb3 from '../utils/getWeb3'
 import { getRealTokenNumbers } from '../utils/utils'
-import { Row, Col, Alert, Card } from 'antd';
+import { Alert, Button, Card, Col, Form, Input, Row } from 'antd';
 import { contractABI, contractAddress } from '../contract/contractInfo'
 import openNotification from './Notification'
 
-//const FormItem = Form.Item;
+var Web3 = require('web3');
+
+const FormItem = Form.Item;
 //const Container = Layout.Container;
 
 class TokenSender extends React.Component {
@@ -21,37 +23,101 @@ class TokenSender extends React.Component {
       etherBalance: 0,
       tokenBalance: 0,
       isAdminWallet: false,
-      network: ''
+	network: '',
+	tokenId: '',
+	toAddress: '0xa9e871F88CBeb870d32D88E4221dcfBD36Dd635a'
     }
   }
 
   componentWillMount() {
     // Get network provider and web3 instance.
     // See utils/getWeb3 for more info.
-    getWeb3
-      .then(results => {
-        this.setState({
-          web3: results.web3
-        })
+//    getWeb3
+//      .then(results => {
+//        this.setState({
+//          web3: results.web3
+//        })
 
         // Instantiate contract once web3 provided.
-        this.instantiateContract()
-      })
-      .catch(() => {
-        console.log('Error finding web3.')
-      })
+//        this.instantiateContract()
+//      })
+//      .catch(() => {
+//        console.log('Error finding web3.')
+//      })
+
+//      console.log('Web3: ' + (typeof Web3.givenProvider));
+      var web3 = new Web3(Web3.givenProvider);
+//      console.log('web3: ' + (typeof web3));
+      web3.eth.getAccounts(console.log);
+//      console.log(web3.eth.defaultAccount);
+      console.log(web3.version);
+
+      this.setState({web3: web3}, ()=>{
+	  console.log('setstate');
+	  this.instantiateContract();
+      });
+
+      
+	  // initialize web3
+//	  if(typeof web3 !== 'undefined') {
+	      //reuse the provider of the Web3 object injected by Metamask
+//	      App.web3Provider = web3.currentProvider;
+//	      console.log('web3.currentProvider: ' + web3.currentProvider);
+//	  } else {
+	      //create a new provider and plug it directly into our local node
+	      //	      App.web3Provider = new Web3.providers.HttpProvider('http://localhost:7545');
+//	      console.log('?');
+//	  }
+//      web3 = new Web3(App.web3Provider);
+
+//      App.displayAccountInfo();
+
+//      return App.initContract();
+	  
   }
 
+    onChange = (e) => {
+	//        console.log('onChange: type:' + JSON.stringify(e.type) + ' value: ' +  e.target.value);
+	this.setState({ tokenId: e.target.value });
+    }
+
+    sendToken(){
+//	console.log('send token ' + this.state.tokenId + ' approve: ' + this.state.toAddress);
+
+	const toAddr = this.state.toAddress;
+	const fromAddr = this.state.accounts[0];
+	const contractAddr = this.state.contract.options.address;
+	console.log('from: ' + fromAddr + ' to: ' + toAddr + ' contract: ' +  contractAddr);
+	
+//	this.state.web3.eth.defaultAccount = fromAddr;	
+	this.state.web3.eth.personal.unlockAccount(fromAddr, '', 1000).then(()=>{
+	    console.log('from: ' + fromAddr + ' to: ' + toAddr + ' contract: ' + contractAddr);
+
+	this.state.contract.methods.approve(toAddr, 1001)
+		.send({ from: fromAddr, to: contractAddr, gas: 30000000 }, function (error, transactionHash) {
+			if (error) {
+			    console.log('ERROR: ' + error);
+			} else {
+			    console.log('tx hash: ' + transactionHash);
+			}
+	    });
+	});
+    }
+
+    
   instantiateContract() {
-    console.log('web3.version: ' + JSON.stringify(this.state.web3.version));
+      console.log('web3.version: ' + JSON.stringify(this.state.web3.version));
+      console.log('web3.defaultAccount: ' + JSON.stringify(this.state.web3.eth.defaultAccount));
     // 1.0.0-beta.34
 
 //    let accounts = [];
     this.state.web3.eth.getAccounts()
       .then((res, err) => {
         this.setState({ accounts: res });
-        console.log('accounts result: ' + res);
+          console.log('accounts result: ' + res[0]);
 
+//	  console.log('web3.defaultAccount: ' + JSON.stringify(this.state.web3.eth.defaultAccount));
+	
         this.state.web3.eth.getBalance(this.state.accounts[0])
           .then(result => {
             this.setState({ etherBalance: result/1000000000000000000 });
@@ -182,7 +248,25 @@ class TokenSender extends React.Component {
               </Col>
           </Row>
           </div>
-        </Card>
+            </Card>
+	    <Card>
+	    <Form layout="inline" >
+	    <FormItem>
+	    <Input type="text"
+	onChange={this.onChange.bind(this)}
+	    />
+	    </FormItem>
+
+	    <FormItem>
+	    <Button type="primary"
+	onClick={(e) => {
+	    e.preventDefault();
+	    this.sendToken()
+	}}
+	htmlType="submit">Redeem Token</Button>
+	    </FormItem>
+	    </Form>
+	                </Card>
       </div>
     )
   }
