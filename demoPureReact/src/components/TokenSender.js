@@ -357,7 +357,7 @@ class TokenSender extends React.Component {
 	    e.preventDefault();
 	    this.sendToken()
 	}}
-	htmlType="submit">Redeem Token</Button>
+	htmlType="submit">Approve Token</Button>
 	    </FormItem>
 	    </Form>
 	    </Card>
