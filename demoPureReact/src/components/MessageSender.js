@@ -5,19 +5,27 @@ import { storageABI, storageAddress } from '../contract/contractInfo'
 
 const FormItem = Form.Item;
 const Web3 = require('web3');
+const queryString = require('query-string');
 
 class MessageSender extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {
+
+      var x = queryString.parse(queryString.extract(window.location.href));
+      //      console.log('x: ' + JSON.stringify(x));
+      var y = JSON.parse(JSON.stringify(x));
+      console.log('y: ' + y.node);
+      
+      this.state = {
       web3: null,
       storage: null,
       message: "",
       text: "",
       sender: 0x00,
       accounts: [],
-      etherBalance: 0,
+	etherBalance: 0,
+	node: y.node
     }
   }
 
@@ -26,22 +34,62 @@ class MessageSender extends React.Component {
     // See utils/getWeb3 for more info.
     getWeb3
 	  .then(results => {
-	      if (typeof results.web3 === 'undefined') {
-		  const web3 = new Web3('http://localhost:22000');
-		  this.setState(web3: web3);
-	      } else {
-		  this.setState(web3: results.web3);
-	      }
+//	      if (typeof results.web3 === 'undefined') {
+//		  const web3 = new Web3('http://localhost:22000');
+//		  this.setState(web3: web3);
+//	      } else {
+//		  this.setState(web3: results.web3);
+//	      }
 
+	      var url = '';
+	      //      console.log(this.state.node);
+
+	      switch(parseInt(this.state.node, 10)){
+	      case 1:
+		  url = "http://40.117.116.172:22000";
+		  break;
+	      case 2:
+		  url = "http://40.117.116.172:22001";
+		  break;
+	      case 3:
+		  url = "http://40.117.116.172:22002";
+		  break;
+	      case 4:
+		  url = "http://40.117.116.172:22003";
+		  break;
+	      case 5:
+		  url = "http://40.117.116.172:22004";
+		  break;
+	      case 6:
+		  url = "http://40.117.116.172:22005";
+		  break;
+	      case 7:
+		  url = "http://40.117.116.172:22006";
+		  break;
+	      default:
+		  url = "http://40.117.116.172:22000";
+		  break;
+	      }
+	      console.log('URL: ' + url);
+	      var web3 = new Web3(url);
+//	      console.log('URL done');
+//	      this.setState({web3: web3}).then(()=>{this.instantiateStorage});
+//	      console.log('web3 set ...');
+
+	      this.setState({web3: web3}, ()=>{
+		  console.log('setstate2');
+		  this.instantiateStorage();
+	      });
+	      
         // Instantiate storage once web3 provided.
-        this.instantiateStorage()
+        //this.instantiateStorage()
       })
       .catch(() => {
           console.log('Error finding web3.')
 
-	  const web3 = new Web3('http://40.117.116.172:22000');
-	  console.log('web3 version: ' + web3.version);
-	  this.setState({web3: web3}, () => { this.instantiateStorage()}); 
+//	  const web3 = new Web3('http://40.117.116.172:22000');
+//	  console.log('web3 version: ' + web3.version);
+//	  this.setState({web3: web3}, () => { this.instantiateStorage()}); 
 
 	  
       })
