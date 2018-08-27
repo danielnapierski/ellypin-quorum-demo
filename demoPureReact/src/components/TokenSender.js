@@ -1,4 +1,4 @@
-import React, { PropTypes } from 'react'
+import React from 'react'
 //import getWeb3 from '../utils/getWeb3'
 import { getRealTokenNumbers } from '../utils/utils'
 import { Alert, Button, Card, Col, Form, Input, Row } from 'antd';
@@ -9,31 +9,45 @@ var Web3 = require('web3');
 
 const FormItem = Form.Item;
 //const Container = Layout.Container;
-const QueryString = require('query-string');
+const queryString = require('query-string');
 
 class TokenSender extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {
+
+      var x = queryString.parse(queryString.extract(window.location.href));
+//      console.log('x: ' + JSON.stringify(x));
+      var y = JSON.parse(JSON.stringify(x));
+      console.log('y: ' + y.node);
+      
+      this.state = {
       totalTokens: 0,
       tableData: null,
       web3: null,
       contract: null,
-      accounts: [],
+	  accounts: [],
+	  node: y.node,
       etherBalance: 0,
       tokenBalance: 0,
       isAdminWallet: false,
 	network: '',
-	tokenId: '',
-	toAddress: '0xa9e871F88CBeb870d32D88E4221dcfBD36Dd635a'
+	tokenId: ''
     }
 
 //      var parsed = QueryString.parse(props.search.location);
-      console.log('props: ' + JSON.stringify(props.location));
-
+//      console.log('props: ' + JSON.stringify(props.location));
+      //      var x = require('query-string');
+//      var x = queryString.parse(queryString.extract(window.location.href));
+//      console.log('x: ' + JSON.stringify(x));
+//      console.log('href: ' + JSON.stringify(window.location.href));
   }
 
+    componentDidMount() {
+//	console.log('search: ' + JSON.stringify(QueryString));
+	
+    }
+    
   componentWillMount() {
     // Get network provider and web3 instance.
     // See utils/getWeb3 for more info.
@@ -56,8 +70,39 @@ class TokenSender extends React.Component {
 
 
       // THIS WORKED FOR RETRIEVAL NOT SENDING: var web3 = new Web3(Web3.givenProvider);
-//node1      var web3 = new Web3("http://40.117.116.172:22000");
-      var web3 = new Web3("http://40.117.116.172:22006");
+      //node1      var web3 = new Web3("http://40.117.116.172:22000");
+
+      var url = '';
+//      console.log(this.state.node);      
+      
+      switch(parseInt(this.state.node, 10)){
+      case 1:
+	  url = "http://40.117.116.172:22000";
+	  break;
+      case 2:
+          url = "http://40.117.116.172:22001";
+          break;
+      case 3:
+          url = "http://40.117.116.172:22002";
+          break;
+      case 4:
+	  url = "http://40.117.116.172:22003";
+	  break;
+      case 5:
+          url = "http://40.117.116.172:22004";
+          break;
+      case 6:
+	  url = "http://40.117.116.172:22005";
+	  break;	  
+      case 7:
+	  url = "http://40.117.116.172:22006";
+	  break;
+      default:
+	  url = "http://40.117.116.172:22000";
+	  break;
+      }
+      console.log('URL: ' + url);
+      var web3 = new Web3(url);
 
       //      console.log('web3: ' + (typeof web3));
       web3.eth.getAccounts(console.log);
@@ -96,7 +141,16 @@ class TokenSender extends React.Component {
     sendToken(){
 //	console.log('send token ' + this.state.tokenId + ' approve: ' + this.state.toAddress);
 
-	const toAddr = this.state.toAddress;
+	var toAddr = '';
+	switch(parseInt(this.state.node, 10)){
+	case 7:
+	    toAddr = "0xed9d02e382b34818e88B88a309c7fe71E65f419d";
+	    break;
+	default:
+	    toAddr = "0xa9e871F88CBeb870d32D88E4221dcfBD36Dd635a";
+	    break;
+	}
+	
 	const fromAddr = this.state.accounts[0];
 	const contractAddr = this.state.contract.options.address;
 	console.log('from: ' + fromAddr + ' to: ' + toAddr + ' contract: ' +  contractAddr);
@@ -117,15 +171,24 @@ class TokenSender extends React.Component {
     }
 
     transferToken(){
-	const fromAddr = '0xed9d02e382b34818e88B88a309c7fe71E65f419d';
+	var fromAddr = '';
+	switch(parseInt(this.state.node, 10)){
+	case 7:
+	    fromAddr = "0xed9d02e382b34818e88B88a309c7fe71E65f419d";
+	    break;
+	default:
+	    fromAddr = "0xa9e871F88CBeb870d32D88E4221dcfBD36Dd635a";
+	    break;
+	}
+	
 	const toAddr = this.state.accounts[0];
 	const contractAddr = this.state.contract.options.address;
 	console.log('from: ' + fromAddr + ' to: ' + toAddr + ' contract: ' + contractAddr);
 
 	this.state.web3.eth.personal.unlockAccount(toAddr, '', 1000).then(()=>{
 	
-	this.state.contract.methods.transferFrom(fromAddr, toAddr, 1001)
-		.send({ from: toAddr, to: contractAddr, chainId: 10, gasLimit: 90000000 }, function (error, transactionHash) {
+	    this.state.contract.methods.transferFrom(fromAddr, toAddr, 1001)
+		.send({ from: toAddr, to: contractAddr, gas: 0, gasLimit: 900020, chainId: 10 }, function (error, transactionHash) {
 		if (error) {
 		    console.log('ERROR: ' + error);
 		} else {
