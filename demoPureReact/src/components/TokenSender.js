@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { PropTypes } from 'react'
 //import getWeb3 from '../utils/getWeb3'
 import { getRealTokenNumbers } from '../utils/utils'
 import { Alert, Button, Card, Col, Form, Input, Row } from 'antd';
@@ -9,6 +9,7 @@ var Web3 = require('web3');
 
 const FormItem = Form.Item;
 //const Container = Layout.Container;
+const QueryString = require('query-string');
 
 class TokenSender extends React.Component {
 
@@ -27,6 +28,10 @@ class TokenSender extends React.Component {
 	tokenId: '',
 	toAddress: '0xa9e871F88CBeb870d32D88E4221dcfBD36Dd635a'
     }
+
+//      var parsed = QueryString.parse(props.search.location);
+      console.log('props: ' + JSON.stringify(props.location));
+
   }
 
   componentWillMount() {
@@ -46,8 +51,15 @@ class TokenSender extends React.Component {
 //      })
 
 //      console.log('Web3: ' + (typeof Web3.givenProvider));
-      var web3 = new Web3(Web3.givenProvider);
-//      console.log('web3: ' + (typeof web3));
+
+
+
+
+      // THIS WORKED FOR RETRIEVAL NOT SENDING: var web3 = new Web3(Web3.givenProvider);
+//node1      var web3 = new Web3("http://40.117.116.172:22000");
+      var web3 = new Web3("http://40.117.116.172:22006");
+
+      //      console.log('web3: ' + (typeof web3));
       web3.eth.getAccounts(console.log);
 //      console.log(web3.eth.defaultAccount);
       console.log(web3.version);
@@ -56,7 +68,7 @@ class TokenSender extends React.Component {
 	  console.log('setstate');
 	  this.instantiateContract();
       });
-
+      
       
 	  // initialize web3
 //	  if(typeof web3 !== 'undefined') {
@@ -94,7 +106,7 @@ class TokenSender extends React.Component {
 	    console.log('from: ' + fromAddr + ' to: ' + toAddr + ' contract: ' + contractAddr);
 
 	this.state.contract.methods.approve(toAddr, 1001)
-		.send({ from: fromAddr, to: contractAddr, gas: 30000000 }, function (error, transactionHash) {
+		.send({ from: fromAddr, to: contractAddr, chainId: 10 }, function (error, transactionHash) {
 			if (error) {
 			    console.log('ERROR: ' + error);
 			} else {
@@ -104,6 +116,25 @@ class TokenSender extends React.Component {
 	});
     }
 
+    transferToken(){
+	const fromAddr = '0xed9d02e382b34818e88B88a309c7fe71E65f419d';
+	const toAddr = this.state.accounts[0];
+	const contractAddr = this.state.contract.options.address;
+	console.log('from: ' + fromAddr + ' to: ' + toAddr + ' contract: ' + contractAddr);
+
+	this.state.web3.eth.personal.unlockAccount(toAddr, '', 1000).then(()=>{
+	
+	this.state.contract.methods.transferFrom(fromAddr, toAddr, 1001)
+		.send({ from: toAddr, to: contractAddr, chainId: 10, gasLimit: 90000000 }, function (error, transactionHash) {
+		if (error) {
+		    console.log('ERROR: ' + error);
+		} else {
+		    console.log('tx hash: ' + transactionHash);
+		}
+	    });
+	});
+    }
+    
     
   instantiateContract() {
       console.log('web3.version: ' + JSON.stringify(this.state.web3.version));
@@ -266,7 +297,25 @@ class TokenSender extends React.Component {
 	htmlType="submit">Redeem Token</Button>
 	    </FormItem>
 	    </Form>
-	                </Card>
+	    </Card>
+	    <Card>
+	    <Form layout="inline" >
+	    <FormItem>
+	    <Input type="text"
+	onChange={this.onChange.bind(this)}
+	/>
+	    </FormItem>
+
+	<FormItem>
+	    <Button type="primary"
+	onClick={(e) => {
+	    e.preventDefault();
+	    this.transferToken();
+	}}
+	htmlType="submit">Transfer Token</Button>
+	    </FormItem>
+	    </Form>
+	    </Card>
       </div>
     )
   }
