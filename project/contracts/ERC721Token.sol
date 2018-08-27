@@ -46,6 +46,25 @@ contract ERC721Token is SupportsInterfaceWithLookup, ERC721BasicToken, ERC721 {
     _registerInterface(InterfaceId_ERC721Metadata);
 
     _mint(msg.sender, 1001);
+    _mint(msg.sender, 1002);
+    _mint(msg.sender, 1003);
+    _mint(msg.sender, 1004);
+    _mint(msg.sender, 1005);
+    _mint(msg.sender, 1006);
+    _mint(msg.sender, 1007);
+    _mint(msg.sender, 1008);
+    _mint(msg.sender, 1009);
+    _mint(msg.sender, 1010);
+    _mint(msg.sender, 1011);
+    _mint(msg.sender, 1012);
+    _mint(msg.sender, 1013);
+    _mint(msg.sender, 1014);
+    _mint(msg.sender, 1015);
+    _mint(msg.sender, 1016);
+    _mint(msg.sender, 1017);
+    _mint(msg.sender, 1018);
+    _mint(msg.sender, 1019);
+    _mint(msg.sender, 1020);
   }
 
   /**

@@ -6,10 +6,10 @@ var ERC721Token = artifacts.require("ERC721Token");
 var SimpleStorage = artifacts.require("SimpleStorage");
 
 module.exports = function(deployer) {
-    deployer.deploy(SimpleStorage, {from:web3.eth.accounts[0], gas: 0x47b760, privateFor: ["ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc="]});
+    deployer.deploy(SimpleStorage, {from:web3.eth.accounts[0], gas: 0x47b760, privateFor: ["ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=","oNspPPgszVUFw0qmGFfWwh1uxVUXgvBxleXORHj07g8="]});
     deployer.deploy(Math);
     deployer.deploy(SafeMath);
     deployer.deploy(AddressUtils);
     deployer.deploy(SupportsInterfaceWithLookup);
-    deployer.deploy(ERC721Token, "HnH000001", "eGBS");
+    deployer.deploy(ERC721Token, "HnH000001", "eGBS", {from:web3.eth.accounts[0], gas:0x47b760});
 };

@@ -29,7 +29,8 @@ class TokenSender extends React.Component {
 	  accounts: [],
 	  node: y.node,
       etherBalance: 0,
-      tokenBalance: 0,
+	  tokenBalance: 0,
+	  tokens: [],
       isAdminWallet: false,
 	network: '',
 	tokenId: ''
@@ -135,7 +136,7 @@ class TokenSender extends React.Component {
 
     onChange = (e) => {
 	//        console.log('onChange: type:' + JSON.stringify(e.type) + ' value: ' +  e.target.value);
-	this.setState({ tokenId: e.target.value });
+	this.setState({ tokenId: parseInt(e.target.value,10) });
     }
 
     sendToken(){
@@ -159,7 +160,7 @@ class TokenSender extends React.Component {
 	this.state.web3.eth.personal.unlockAccount(fromAddr, '', 1000).then(()=>{
 	    console.log('from: ' + fromAddr + ' to: ' + toAddr + ' contract: ' + contractAddr);
 
-	this.state.contract.methods.approve(toAddr, 1001)
+	this.state.contract.methods.approve(toAddr, this.state.tokenId)
 		.send({ from: fromAddr, to: contractAddr, chainId: 10 }, function (error, transactionHash) {
 			if (error) {
 			    console.log('ERROR: ' + error);
@@ -187,7 +188,7 @@ class TokenSender extends React.Component {
 
 	this.state.web3.eth.personal.unlockAccount(toAddr, '', 1000).then(()=>{
 	
-	    this.state.contract.methods.transferFrom(fromAddr, toAddr, 1001)
+	    this.state.contract.methods.transferFrom(fromAddr, toAddr, this.state.tokenId)
 		.send({ from: toAddr, to: contractAddr, gas: 0, gasLimit: 900020, chainId: 10 }, function (error, transactionHash) {
 		if (error) {
 		    console.log('ERROR: ' + error);
@@ -236,6 +237,22 @@ class TokenSender extends React.Component {
               _this.setState({ tokenBalance: bal});
             })
 
+	      var i;
+	      var tokens = [];
+	      for (i = 1001; i <= 1020; i++) {
+		  const _i = i;
+ 	  this.state.contract.methods.ownerOf(i).call().then(function(o){
+	      if (o === _this.state.accounts[0])
+	      {
+		  tokens.push(_i);
+		  _this.setState({tokens: tokens});
+//		  console.log('tokens: ' + JSON.stringify(tokens));
+//		  console.log('i: ' + _i);
+	      }
+	      //		  console.log('owner: ' + (o === _this.state.accounts[0]));
+	    });
+	  }
+							     console.log(JSON.stringify(tokens));      
             this.state.web3.eth.net.getNetworkType((err, netWork) => {
               console.log('network: ' + netWork);
               _this.setState({ network: netWork});
@@ -344,6 +361,12 @@ class TokenSender extends React.Component {
           </div>
             </Card>
 	    <Card>
+	    <div>
+	    Serial Numbers of Tokens Owned: {JSON.stringify(this.state.tokens.sort(function(a,b) { return a-b; }))}
+	    </div>
+	    </Card>
+	    <Card>
+	    Enter Token Serial Number: 
 	    <Form layout="inline" >
 	    <FormItem>
 	    <Input type="text"
@@ -359,15 +382,7 @@ class TokenSender extends React.Component {
 	}}
 	htmlType="submit">Approve Token</Button>
 	    </FormItem>
-	    </Form>
-	    </Card>
-	    <Card>
-	    <Form layout="inline" >
-	    <FormItem>
-	    <Input type="text"
-	onChange={this.onChange.bind(this)}
-	/>
-	    </FormItem>
+	    
 
 	<FormItem>
 	    <Button type="primary"
@@ -375,7 +390,7 @@ class TokenSender extends React.Component {
 	    e.preventDefault();
 	    this.transferToken();
 	}}
-	htmlType="submit">Transfer Token</Button>
+	htmlType="submit">Transfer From Token</Button>
 	    </FormItem>
 	    </Form>
 	    </Card>

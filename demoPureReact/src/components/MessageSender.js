@@ -210,7 +210,7 @@ class MessageSender extends React.Component {
 	      
 	      
         _this.state.storage.methods.set(_text)
-		  .send({ from: _this.state.accounts[0], to: _this.state.storage.options.address, gas: 30000000, privateFor: ["ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc="]}, function (error, transactionHash) {
+		  .send({ from: _this.state.accounts[0], to: _this.state.storage.options.address, gas: 30000000, privateFor: ["ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=","oNspPPgszVUFw0qmGFfWwh1uxVUXgvBxleXORHj07g8="]}, function (error, transactionHash) {
 		      if (error) {
 			  console.log('from: ' + _this.state.accounts[0]);
               console.log('ERROR: ' + error);
@@ -222,6 +222,30 @@ class MessageSender extends React.Component {
       }
 //chainId: 10,
 
+    getButton() {
+	if (parseInt(this.state.node, 10) === 1) {
+	    return             <Card>
+		<Form layout="inline" >
+		<FormItem>
+		<Input type="text"
+	    onChange={this.onChange.bind(this)}
+	        />
+		</FormItem>
+
+	        <FormItem>
+		<Button type="primary"
+	    onClick={(e) => {
+		e.preventDefault();
+		this.sendMessage()
+	    }}
+	    htmlType="submit">Send Message</Button>
+		</FormItem>
+		</Form>
+		</Card>;
+	}
+	return <div></div>;
+    }
+    
       render() {
         return (
           <div>
@@ -240,24 +264,7 @@ class MessageSender extends React.Component {
               </Row>
               </div>
             </Card>
-            <Card>
-              <Form layout="inline" >
-                <FormItem>
-                  <Input type="text"
-                    onChange={this.onChange.bind(this)}
-                  />
-                </FormItem>
-
-                <FormItem>
-                  <Button type="primary"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      this.sendMessage()
-                    }}
-                    htmlType="submit">Send Message</Button>
-                </FormItem>
-              </Form>
-            </Card>
+		{this.getButton()}
           </div>
         )
       }
